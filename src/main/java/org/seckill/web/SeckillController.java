@@ -37,11 +37,11 @@ public class SeckillController {
     @RequestMapping(value = "/{seckillId}/detail", method = RequestMethod.GET)
     public String detail(@PathVariable("seckillId") Long seckillId, Model model) {
         if (seckillId == null) {
-            return "redirect:/seckill/list";
+            return "redirect:/seckill/list"; // 重定向
         }
         Seckill seckill = seckillService.getById(seckillId);
         if (seckill == null) {
-            return "forward:/seckill/list";
+            return "forward:/seckill/list"; // 转发
         }
         model.addAttribute("seckill",seckill);
         return "detail";
@@ -51,7 +51,7 @@ public class SeckillController {
      * ajax ,json暴露秒杀接口的方法
      */
     @RequestMapping(value = "/{seckillId}/exposer",
-                    method = RequestMethod.GET,
+                    method = RequestMethod.GET, // TODO post???
                     produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public SeckillResult<Exposer> exposer(@PathVariable("seckillId") Long seckillId) {

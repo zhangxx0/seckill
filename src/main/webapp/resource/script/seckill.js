@@ -53,7 +53,7 @@ var seckill = {
                         //验证通过　　刷新页面
                         window.location.reload();
                     } else {
-                        //todo 错误文案信息抽取到前端字典里
+                        // 错误文案信息抽取到前端字典里
                         $('#killPhoneMessage').hide().html('<label class="label label-danger">手机号错误!</label>').show(300);
                     }
                 });
@@ -113,7 +113,7 @@ var seckill = {
                     });
                     node.show();
                 } else {
-                    //未开启秒杀(浏览器计时偏差)
+                    //未开启秒杀(浏览器计时偏差) 纠正时间
                     var now = exposer['now'];
                     var start = exposer['start'];
                     var end = exposer['end'];
