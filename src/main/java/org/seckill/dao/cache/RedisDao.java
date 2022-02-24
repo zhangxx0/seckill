@@ -31,7 +31,7 @@ public class RedisDao {
                 //采用自定义序列化
                 //protostuff: pojo.(带setget方法的对象)
                 byte[] bytes = jedis.get(key.getBytes());
-                //缓存重获取到
+                //缓存中获取到
                 if (bytes != null) {
                     // 空对象
                     Seckill seckill = schema.newMessage();

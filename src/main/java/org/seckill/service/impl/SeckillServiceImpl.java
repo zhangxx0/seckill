@@ -131,11 +131,10 @@ public class SeckillServiceImpl implements SekillService {
                     //没有更新库存记录，说明秒杀结束
                     throw new SeckillCloseException("seckill is closed");
                 } else {
+                    //秒杀成功,得到成功插入的明细记录,并返回成功秒杀的信息
+                    SuccessKilled successKilled = successKilledDao.queryByIdWithSeckill(seckillId, userPhone);
+                    return new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
                 }
-
-                //秒杀成功,得到成功插入的明细记录,并返回成功秒杀的信息
-                SuccessKilled successKilled = successKilledDao.queryByIdWithSeckill(seckillId, userPhone);
-                return new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
             }
 
 
