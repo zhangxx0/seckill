@@ -8,6 +8,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 
+import java.util.Date;
+
 import static org.junit.Assert.*;
 
 /**
@@ -23,7 +25,7 @@ public class SuccessKilledDaoTest {
     private SuccessKilledDao successKilledDao;
     @Test
     public void insertSuccessKilled() throws Exception {
-        int num = successKilledDao.insertSuccessKilled(1000,18706480736L);
+        int num = successKilledDao.insertSuccessKilled(1000,18706480736L, new Date());
         System.out.println("插入的数目：" + num);
     }
 

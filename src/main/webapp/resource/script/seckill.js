@@ -13,6 +13,9 @@ var seckill = {
         },
         execution: function (seckillId, md5) {
             return '/seckill/' + seckillId + '/' + md5 + '/execution';
+        },
+        result: function (seckillId) {
+            return '/seckill/' + seckillId + '/result';
         }
     },
 
@@ -77,6 +80,27 @@ var seckill = {
         }
     },
 
+    // 获取秒杀结果
+    getSeckillResult: function (seckillId, node) {
+        $.get(seckill.URL.result(seckillId), {}, function (result) {
+            if (result && result['success']) {
+                var killResult = result['data'];
+                var state = killResult['state'];
+                var stateInfo = killResult['stateInfo'];
+                if (state == -4) {
+                    // 排队中
+                    setTimeout(function () {
+                        seckill.getSeckillResult(seckillId, node)
+                    }, 200);
+                } else {
+                    //显示秒杀结果
+                    console.log(stateInfo);
+                    node.html('<span class="label label-success">' + stateInfo + '</span>');
+                }
+            }
+        });
+    },
+
     handlerSeckill: function (seckillId, node) {
         //获取秒杀地址,控制显示器,执行秒杀
         node.hide().html('<button class="btn btn-primary btn-lg" id="killBtn">开始秒杀</button>');
@@ -104,6 +128,10 @@ var seckill = {
                                 var stateInfo = killResult['stateInfo'];
                                 //显示秒杀结果
                                 node.html('<span class="label label-success">' + stateInfo + '</span>');
+
+                                // TODO 请求入队，立即返回排队中，再轮询获取秒杀结果
+                                seckill.getSeckillResult(seckillId, node);
+
                             } else {
                                 // 错误的展示，未测试 TODO
                                 var stateInfo = killResult['stateInfo'];

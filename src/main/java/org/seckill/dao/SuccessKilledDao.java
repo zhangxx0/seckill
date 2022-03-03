@@ -3,6 +3,8 @@ package org.seckill.dao;
 import org.apache.ibatis.annotations.Param;
 import org.seckill.entity.SuccessKilled;
 
+import java.util.Date;
+
 /**
  * Created by xinxin on 2017/11/3.
  */
@@ -14,7 +16,7 @@ public interface SuccessKilledDao {
      * @param userPhone
      * @return 插入的行数
      */
-    int insertSuccessKilled(@Param("seckillId") long seckillId,@Param("userPhone")long userPhone);
+    int insertSuccessKilled(@Param("seckillId") long seckillId,@Param("userPhone")long userPhone, @Param("killTime") Date killTime);
 
 
     /**

@@ -58,8 +58,22 @@ public interface SekillService {
      * @throws RepeatKillException
      * @throws SeckillCloseException
      */
-    SeckillExecution executeSeckillProcedure(long seckillId, long userPhone, String md5)
-            throws SeckillException,RepeatKillException,SeckillCloseException;
+    SeckillExecution executeSeckillProcedure(long seckillId, long userPhone, String md5);
 
+    /**
+     * 执行秒杀 by 消息队列
+     * @param seckillId
+     * @param userPhone
+     * @param md5
+     * @return
+     */
+    SeckillExecution executeSeckillWithRabbitMQ(long seckillId, long userPhone, String md5);
 
+    /**
+     * 查询秒杀结果
+     * @param seckillId
+     * @param phone
+     * @return
+     */
+    SeckillExecution seckillResult(Long seckillId, Long phone);
 }

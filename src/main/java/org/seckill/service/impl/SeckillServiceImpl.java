@@ -13,6 +13,8 @@ import org.seckill.enums.SeckillStatEnum;
 import org.seckill.exception.RepeatKillException;
 import org.seckill.exception.SeckillCloseException;
 import org.seckill.exception.SeckillException;
+import org.seckill.rabbitmq.SeckillMessage;
+import org.seckill.rabbitmq.SeckillSender;
 import org.seckill.service.SekillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xinxin on 2017/11/4.
@@ -45,6 +44,9 @@ public class SeckillServiceImpl implements SekillService {
 
     @Autowired
     private RedisDao redisDao;
+
+    @Autowired
+    private SeckillSender seckillSender;
 
     public List<Seckill> getSeckillList() {
         return seckillDao.queryAll(0, 4);
@@ -119,7 +121,7 @@ public class SeckillServiceImpl implements SekillService {
         try {
 
             //增加明细
-            int insertCount = successKilledDao.insertSuccessKilled(seckillId, userPhone);
+            int insertCount = successKilledDao.insertSuccessKilled(seckillId, userPhone, nowTime);
             //看是否该明细被重复插入，即用户是否重复秒杀
             if (insertCount <= 0) {
                 //重复秒杀
@@ -176,5 +178,42 @@ public class SeckillServiceImpl implements SekillService {
             logger.error(e.getMessage(), e);
             return new SeckillExecution(seckillId, SeckillStatEnum.INNER_ERROR);
         }
+    }
+
+    public SeckillExecution executeSeckillWithRabbitMQ(long seckillId, long userPhone, String md5) {
+        if (md5 == null || !md5.equals(getMD5(seckillId))) {
+            return new SeckillExecution(seckillId, SeckillStatEnum.DATA_REWRITE);
+        }
+
+        Date killTime = new Date();
+        SeckillMessage message = new SeckillMessage();
+        message.setSeckillId(seckillId);
+        message.setUserPhone(userPhone);
+        message.setMd5(md5);
+        message.setKillTime(killTime);
+        seckillSender.sendMessage(message);
+
+        return new SeckillExecution(seckillId, SeckillStatEnum.IN_MQ); // 直接返回排队中
+    }
+
+    public SeckillExecution seckillResult(Long seckillId, Long phone) {
+
+        // TODO 从redis中获取秒杀结果
+        SeckillExecution seckillExecution = redisDao.getSeckillExecution(seckillId, phone);
+
+        if (Objects.isNull(seckillExecution)) {
+            // TODO 从数据库查询秒杀结果
+            /*SuccessKilled successKilled = successKilledDao.queryByIdWithSeckill(seckillId, phone);
+            if (Objects.nonNull(successKilled)) {
+                return new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
+            } else {
+                return new SeckillExecution(seckillId, SeckillStatEnum.IN_MQ);
+            }*/
+
+            // 直接返回排队中
+            return new SeckillExecution(seckillId, SeckillStatEnum.IN_MQ);
+        }
+
+        return seckillExecution;
     }
 }
